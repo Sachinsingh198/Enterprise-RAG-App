@@ -51,7 +51,8 @@ def _init():
 
 
 def get_embedding_dim() -> int:
-    """Return the vector dimension for the active model. Call after _init()."""
+    """Return the vector dimension for the active model."""
+    _init()  # <-- ensure model is initialized before reporting its dim
     return _GEMINI_DIM if _model_type == "gemini" else _FALLBACK_DIM
 
 
@@ -64,16 +65,16 @@ def embed_batch(batch: list[str]) -> list[list[float]]:
             except Exception as e:
                 err = str(e).lower()
                 is_rate_limit = any(x in err for x in ("429", "rate", "quota", "resource_exhausted"))
-            if is_rate_limit and attempt < 3:
-                wait = 2 ** attempt
-                logfire.warning(
-                    f"Gemini rate limit hit - retrying in {wait}s"
-                    f"(attempt {attempt + 1}/4)"
-                )
-                time.sleep(wait)
-            else:
-                logfire.error(f"Gemini rate limit persisted after 4 attempts.")
-                raise 
+                if is_rate_limit and attempt < 3:
+                    wait = 2 ** attempt
+                    logfire.warning(
+                        f"Gemini rate limit hit - retrying in {wait}s"
+                        f"(attempt {attempt + 1}/4)"
+                    )
+                    time.sleep(wait)
+                else:
+                    logfire.error(f"Gemini rate limit persisted after 4 attempts.")
+                    raise 
         raise RuntimeError("Gemini rate limit persisted after 4 attempts.")
     else:
         return _active_model.encode(batch, show_progress_bar = False).tolist()

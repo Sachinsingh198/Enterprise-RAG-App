@@ -8,7 +8,7 @@ from qdrant_client import QdrantClient
 from qdrant_client.http import models
 
 from app.config import settings 
-from app.services.retrieval.embeddings import embed_texts, get_embedding_dim
+from app.services.retrieval.embedding import embed_texts, get_embedding_dim
 from app.ingestion.loaders.pdf import parse_pdf
 from app.ingestion.loaders.html import parse_html
 from app.ingestion.loaders.text import parse_text
@@ -24,7 +24,8 @@ PROCESSED_DATA_DIR = "processed_data"
 # Initialize the Qdrant Client
 qdrant_client = QdrantClient(
     url = settings.QDRANT_URL,
-    api_key=settings.QDRANT_API_KEY
+    api_key=settings.QDRANT_API_KEY,
+    timeout=60,  # seconds; default is too short for larger batch upserts
 )
 
 def save_processed_locally(data: dict, source_type: str, filename: str) -> str:
@@ -49,7 +50,7 @@ def process_file(file_path: str, filename: str, source_type: str):
                 full_text = parse_html(file_path)
             elif ext == "txt":
                 full_text = parse_text(file_path)
-            elif ext in ("docs", "pptx"):
+            elif ext in ("docx", "pptx"):
                 from app.ingestion.loaders.office import parse_office
                 full_text = parse_office(file_path)
             else:
