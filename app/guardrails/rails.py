@@ -41,25 +41,48 @@ def guard(message: str) -> tuple[bool, str | None]:
         return False, None
 
     with logfire.span("🛡️ Guardrails Check"):
-        result = _rails.generate(messages=[{"role": "user", "content": message}])
-        
-        content = result.get("content", "") if isinstance(result, dict) else str(result)
-        
-        # Clean whitespace and formatting for reliable matching
-        clean_content = content.strip().replace('"', '').replace("'", "")
-        
-        # Check against normalized indicators
-        fired = False
-        for indicator in RAIL_INDICATORS:
-            clean_indicator = indicator.strip().replace('"', '').replace("'", "")
-            if clean_indicator in clean_content or clean_content in clean_indicator:
-                fired = True
-                content = indicator # Force the exact predefined response
-                break
+        logfire.info(f"🛡️ INPUT TO GUARDRAILS: {message}")
+
+        result = _rails.generate(
+            messages=[
+                {
+                    "role": "user",
+                    "content": message
+                }
+            ]
+        )
+
+        content = (
+            result.get("content", "")
+            if isinstance(result, dict)
+            else str(result)
+        ).strip()
+
+        logfire.info(f"🛡️ RAW GUARDRAILS RESULT: {result}")
+
+        fired = "__GUARDRAIL_BLOCKED__:" in content
+
+        logfire.info(
+            f"🛡️ GUARDRAIL STATUS | fired={fired} | content={content}"
+        )
 
         if fired:
-            logfire.info(f"🛡️ Guardrails fired | query='{message[:80]}'")
-            return True, content
+            logfire.info(
+                f"🚫 Guardrail fired | query='{message[:80]}'"
+            )
 
-        logfire.info("✅ Guardrails passed.")
+            if "JAILBREAK" in content:
+                return (
+                    True,
+                    "I’m sorry, but I can’t comply with attempts to override my instructions."
+                )
+
+            if "OFF_TOPIC" in content:
+                return (
+                    True,
+                    "I’m an Enterprise IT Assistant focused on Kubernetes, Intel hardware, and enterprise networking. Please ask me something related to those topics."
+                )
+
+            return True, "I’m sorry, but I can’t help with that."
+
         return False, None
