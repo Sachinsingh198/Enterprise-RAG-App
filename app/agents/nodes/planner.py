@@ -1,21 +1,21 @@
 from app.agents.state import AgentState
-from app.config import settings
-from langchain_groq import ChatGroq
+from app.gateway.client import get_langchain_llm
 import logfire
 
-llm = ChatGroq(api_key=settings.GROQ_API_KEY, model=settings.GROQ_MODEL, temperature = 0)
+# Portkey-backed LLM: fallback + cache + retry — same .invoke() interface as ChatGroq
+llm = get_langchain_llm(feature="planner")
 
 def planner_node(state: AgentState):
     """
     The Planner determines if a search is needed based on the ENTIRE conversation.
     """
-
+    # Get the conversation history (excluding the latest message)
     history = ""
     for msg in state["messages"][:-1]:
         role = "User" if msg["role"] == "user" else "Assistant"
         history += f"{role}: {msg['content']}\n"
 
-    user_message = state['messages'][-1]['content'] if state['messages'] else ""
+    user_message = state["messages"][-1]["content"] if state["messages"] else ""
 
     prompt = f"""
     You are an intelligent Assistant Planner.
@@ -42,12 +42,11 @@ def planner_node(state: AgentState):
         return {
             "current_query": "CONVERSATIONAL",
             "status": "Handling conversationally (using memory)...",
-            "plan": ["Intent: Conversational/Memory", "Retrieval: Skipped"],
+            "plan": ["Intent: Conversational/Memory", "Retrieval: Skipped"]
         }
 
     return {
         "current_query": decision,
         "status": f"Technical research needed. Searching for: {decision}",
-        "plan": ["Intent: Technical", f"Search Term: {decision}"],
+        "plan": ["Intent: Technical", f"Search Term: {decision}"]
     }
-    
