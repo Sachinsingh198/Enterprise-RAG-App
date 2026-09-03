@@ -1,0 +1,36 @@
+# LiteLLM Proxy configuration for Enterprise Agentic RAG.
+# Secrets stay in .env and are read by the proxy process only.
+
+model_list:
+  # Application model aliases. Do not call provider model names from API code;
+  # the proxy owns routing centrally.
+  - model_name: rag-primary
+    litellm_params:
+      model: groq/openai/gpt-oss-20b
+      api_key: os.environ/GROQ_API_KEY
+
+  - model_name: rag-fallback
+    litellm_params:
+      model: groq/openai/gpt-oss-20b
+      api_key: os.environ/GROQ_FALLBACK_API_KEY
+
+  # NeMo uses this alias for intent and safety classification.
+  - model_name: guardrails
+    litellm_params:
+      model: groq/openai/gpt-oss-20b
+      api_key: os.environ/GROQ_API_KEY
+
+router_settings:
+  num_retries: 2
+  fallbacks:
+    - rag-primary:
+        - rag-fallback
+    - guardrails:
+        - rag-fallback
+
+general_settings:
+  # The app sends this as: Authorization: Bearer <key>.
+  master_key: os.environ/LITELLM_MASTER_KEY
+
+litellm_settings:
+  set_verbose: false

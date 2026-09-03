@@ -1,11 +1,11 @@
 import os
 from dotenv import load_dotenv
 
+# Load environment variables
 load_dotenv()
 
-
 class Settings:
-     # --- GEMINI EMBEDDINGS ---
+    # --- GEMINI EMBEDDINGS ---
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
     # --- VECTOR DB (QDRANT) ---
@@ -15,14 +15,15 @@ class Settings:
 
     # --- REASONING ENGINE (GROQ) ---
     GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-    GROQ_MODEL = "openai/gpt-oss-20b"
+    GROQ_MODEL = "llama-3.3-70b-versatile"
+    GUARDRAIL_MODEL = os.getenv("GUARDRAIL_MODEL", "openai/gpt-oss-20b")
     GROQ_FALLBACK_API_KEY = os.getenv("GROQ_FALLBACK_API_KEY")
 
     # --- LLM GATEWAY (PORTKEY) ---
     PORTKEY_API_KEY = os.getenv("PORTKEY_API_KEY")
     PORTKEY_GATEWAY_CONFIG = os.getenv("PORTKEY_GATEWAY_CONFIG")
-    GROQ_SLUG =  "sactus"     # primary: @rag/llama-3.3-70b-versatile
-    GROQ_SLUG_2 = "sactus2"  # fallback: @brag/llama-3.1-8b-instant
+    GROQ_SLUG =  "rag1"     # primary: @rag/llama-3.3-70b-versatile
+    GROQ_SLUG_2 = "rag2"  # fallback: @brag/llama-3.1-8b-instant
 
-    
+
 settings = Settings()
