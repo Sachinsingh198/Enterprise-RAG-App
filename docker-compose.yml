@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: rag_backend
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - QDRANT_CLUSTER_ENDPOINT=${QDRANT_CLUSTER_ENDPOINT}
+      - QDRANT_API_KEY=${QDRANT_API_KEY}
+      - LOGFIRE_TOKEN=${LOGFIRE_TOKEN}
+      - PORTKEY_API_KEY=${PORTKEY_API_KEY}
+      - PORTKEY_GATEWAY_CONFIG=${PORTKEY_GATEWAY_CONFIG}
+    volumes:
+      - ./backend/DATA:/app/DATA
+      - ./backend/processed_data:/app/processed_data
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: rag_frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
