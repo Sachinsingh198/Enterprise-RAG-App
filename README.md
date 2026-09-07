@@ -1,5 +1,6 @@
 # Enterprise Agentic RAG Assistant for Kubernetes 🚀
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel-000000.svg?style=flat&logo=vercel)](https://enterprise-rag-app-pi.vercel.app/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688.svg?style=flat&logo=fastapi)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-19.0-61DAFB.svg?style=flat&logo=react)](https://react.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4.0-38B2AC.svg?style=flat&logo=tailwind-css)](https://tailwindcss.com/)
@@ -9,9 +10,20 @@
 [![Groq](https://img.shields.io/badge/Groq-Llama_3.3_70B-f55036.svg?style=flat)](https://groq.com/)
 [![Logfire](https://img.shields.io/badge/Pydantic-Logfire_Tracing-E92063.svg?style=flat)](https://pydantic.dev/logfire)
 
+🌐 **Live Application Demo**: [https://enterprise-rag-app-pi.vercel.app/](https://enterprise-rag-app-pi.vercel.app/)
+
 A production-grade, enterprise-ready **Agentic Retrieval-Augmented Generation (RAG)** application engineered specifically for **Kubernetes Infrastructure**, **Cloud-Native Architecture**, and **Enterprise IT Operations**. 
 
 This application bridges the gap between raw enterprise documentation and intelligent automation by integrating **LangGraph multi-step reasoning state machines**, **NVIDIA NeMo Guardrails**, **Qdrant hybrid vector search**, **Groq Llama-3.3-70B LPU inference**, **Portkey AI gateway resiliency**, and an **animated React 19 + Tailwind CSS v4 streaming dashboard**.
+
+---
+
+## 🌐 Live Production Deployment
+
+- 🚀 **Live Interactive Demo**: [https://enterprise-rag-app-pi.vercel.app/](https://enterprise-rag-app-pi.vercel.app/)
+- ⚙️ **Backend REST & SSE API**: Hosted on **Render** (FastAPI + Server-Sent Events real-time streaming).
+- 🗄️ **Managed Vector DB**: Hosted on **Qdrant Cloud** (768-dim Gemini embeddings + Cosine similarity).
+- 🛠️ **Deployment Blueprints**: Complete step-by-step guides for Docker Compose, Kubernetes, and Cloud PaaS are available in [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ---
 
