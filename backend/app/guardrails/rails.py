@@ -91,6 +91,7 @@ def initialize_rails() -> None:
         api_key=settings.GROQ_API_KEY,
         model=settings.GUARDRAIL_MODEL,
         temperature=0,
+        reasoning_effort="low",
     )
     config = RailsConfig.from_content(
         colang_content=COLANG_CONTENT,
@@ -142,3 +143,41 @@ def guard(message: str) -> tuple[bool, str | None]:
 
         logfire.info("Guardrails passed.")
         return False, None
+
+
+async def guard_async(message: str) -> tuple[bool, str | None]:
+    """Async version of NeMo safety gate for async endpoints."""
+    for reason, pattern, response in _LOCAL_BLOCKS:
+        if pattern.search(message):
+            logfire.info(f"Guardrails fired locally ({reason}) | query='{message[:80]}'")
+            return True, response
+
+    for pattern, response in _LOCAL_CONVERSATION_RESPONSES:
+        if pattern.search(message):
+            logfire.info(f"Guardrails handled conversation | query='{message[:80]}'")
+            return True, response
+
+    if _rails is None:
+        logfire.warning("Guardrails not initialised; blocking request (fail closed).")
+        return True, "Safety checks are unavailable. Please try again shortly."
+
+    with logfire.span("Guardrails Check"):
+        try:
+            result = await _rails.generate_async(messages=[{"role": "user", "content": message}])
+        except Exception:
+            logfire.exception("Guardrails check failed; blocking request (fail closed).")
+            return True, "Safety checks are temporarily unavailable. Please try again shortly."
+
+        content = result.get("content", "") if isinstance(result, dict) else str(result)
+        if content.startswith(BLOCK_PREFIX):
+            response = content.removeprefix(BLOCK_PREFIX).lstrip()
+            logfire.info(f"Guardrails fired | query='{message[:80]}'")
+            return True, response
+
+        if _MODEL_REFUSAL.search(content):
+            logfire.info(f"Guardrails fired from model refusal | query='{message[:80]}'")
+            return True, _OFF_TOPIC_RESPONSE
+
+        logfire.info("Guardrails passed.")
+        return False, None
+

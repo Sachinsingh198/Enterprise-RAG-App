@@ -1,7 +1,6 @@
 import os
 from dotenv import load_dotenv
 
-# Load environment variables
 load_dotenv()
 
 class Settings:
@@ -22,8 +21,7 @@ class Settings:
     # --- LLM GATEWAY (PORTKEY) ---
     PORTKEY_API_KEY = os.getenv("PORTKEY_API_KEY")
     PORTKEY_GATEWAY_CONFIG = os.getenv("PORTKEY_GATEWAY_CONFIG")
-    GROQ_SLUG =  "rag1"     # primary: @rag/llama-3.3-70b-versatile
-    GROQ_SLUG_2 = "rag2"  # fallback: @brag/llama-3.1-8b-instant
-
+    GROQ_SLUG =  "rag1"
+    GROQ_SLUG_2 = "rag2"
 
 settings = Settings()
